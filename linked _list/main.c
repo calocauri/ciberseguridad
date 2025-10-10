@@ -5,7 +5,10 @@ int arr[10]; //40 bytes
 
 typedef struct Node{ 
     int data;
+    char* name;
+
     struct Node* next;
+    struct Node* prev;
 } Node;
 
 Node* head;//16 bytes
@@ -14,6 +17,7 @@ Node* create_node(int value) {
     Node* new_node = (Node*) malloc(sizeof(Node));//reservamos memoria para nuestro Node
     new_node->data = value;
     new_node->next = NULL;
+    new_node->prev = NULL;
     return new_node;
 }
 

@@ -1,1 +1,1 @@
-printf("Head Node: %d\n", head->data);
+Elimina un nodo con valor:
