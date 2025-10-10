@@ -1,0 +1,1 @@
+printf("Head Node: %d\n", head->data);
