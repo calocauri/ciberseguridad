@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> //malloc, free
 
-int arr[10]; //40 bytes
+//int arr[10]; //40 bytes
 
 typedef struct Node{ 
     int data;
@@ -9,13 +9,17 @@ typedef struct Node{
     struct Node* prev;    
 } Node;
 
-Node* head;//16 bytes
+Node* head = NULL;//16 bytes
 
 Node* create_node(int value) {
     Node* new_node = (Node*) malloc(sizeof(Node));//reservamos memoria para nuestro Node
+    if (!new_node) {
+        perror("Error al asignar memoria");
+        exit(EXIT_FAILURE);
+    }
     new_node->data = value;
     new_node->next = NULL;
-    new_node->next = NULL;
+    new_node->prev = NULL;
     return new_node;
 }
 
@@ -68,6 +72,19 @@ void free_list() {
     
 }
 
+void print_reverse() {
+    Node* current = head;
+    if (!current) return;
+    while (current->next) {
+        current = current->next;
+    }
+    printf("\nLista en reversa:");
+    while (current) {
+        printf("%d\n", current->data);
+        current = current->prev;
+    }
+}
+
 
 int main() {
 
@@ -79,6 +96,9 @@ int main() {
         printf("Agrega un valor int\n");
         int value;
         scanf("%d", &value);
+        if (value == -999) {
+            break;
+        }
         if(value == -1) {
             printf("Elimina un nodo con valor:\n");
             scanf("%d", &value);
@@ -94,6 +114,7 @@ int main() {
             printf("%d\n", current->data);
             current = current->next;
         }
+        print_reverse();
     }
     free_list();
     return 0;
