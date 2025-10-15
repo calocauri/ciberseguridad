@@ -6,6 +6,7 @@ int arr[10]; //40 bytes
 typedef struct Node{ 
     int data;
     struct Node* next;
+    struct Node* prev;    
 } Node;
 
 Node* head;//16 bytes
@@ -13,6 +14,7 @@ Node* head;//16 bytes
 Node* create_node(int value) {
     Node* new_node = (Node*) malloc(sizeof(Node));//reservamos memoria para nuestro Node
     new_node->data = value;
+    new_node->next = NULL;
     new_node->next = NULL;
     return new_node;
 }
@@ -30,27 +32,31 @@ void add_node(Node* node) {
             current = current->next;
         }
         current->next = node;
+        node->prev = current;
     }
 }
 
 void remove_node(int value) {
     Node* current = head;
-    while (current)
-    {
-        printf("%d\n", current->data);
 
-        if(current->next->data == value) {
+    while (current != NULL) {
+        if (current->data == value) {
+            if (current->prev != NULL) {
+                current->prev->next = current->next;
+            } else {
+                head = current->next; // si es el primer nodo
+            }
 
-            Node* temp = current->next;
-            current->next = current->next->next;
-            free(temp);
+            if (current->next != NULL) {
+                current->next->prev = current->prev;
+            }
+
+            free(current);
             return;
-
         }
         current = current->next;
     }
 }
-
 void free_list() {
     Node* current = head;
     while (current)
