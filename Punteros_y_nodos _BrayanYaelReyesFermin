@@ -7,6 +7,9 @@ typedef struct Nodo {
     struct Nodo* anterior;
 } Nodo;
 
+Nodo* cabeza = NULL;
+Nodo* cola = NULL;
+
 Nodo* crearNodo(int valor) {
     Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
     nuevo->dato = valor;
@@ -15,55 +18,131 @@ Nodo* crearNodo(int valor) {
     return nuevo;
 }
 
-void insertarFinal(Nodo** inicio, int valor) {
+void insertarInicio(int valor) {
     Nodo* nuevo = crearNodo(valor);
+    if (cabeza == NULL) {
+        cabeza = cola = nuevo;
+    } else {
+        nuevo->siguiente = cabeza;
+        cabeza->anterior = nuevo;
+        cabeza = nuevo;
+    }
+}
 
-    if (*inicio == NULL) {
-        *inicio = nuevo;
+void insertarFinal(int valor) {
+    Nodo* nuevo = crearNodo(valor);
+    if (cola == NULL) {
+        cabeza = cola = nuevo;
+    } else {
+        cola->siguiente = nuevo;
+        nuevo->anterior = cola;
+        cola = nuevo;
+    }
+}
+
+void insertarEnPosicion(int valor, int posicion) {
+    if (posicion <= 0) {
+        insertarInicio(valor);
         return;
     }
 
-    Nodo* temporal = *inicio;
-    while (temporal->siguiente != NULL) {
-        temporal = temporal->siguiente;
+    Nodo* actual = cabeza;
+    int indice = 0;
+
+    while (actual != NULL && indice < posicion) {
+        actual = actual->siguiente;
+        indice++;
     }
 
-    temporal->siguiente = nuevo;
-    nuevo->anterior = temporal;
+    if (actual == NULL) {
+        insertarFinal(valor);
+    } else {
+        Nodo* nuevo = crearNodo(valor);
+        nuevo->siguiente = actual;
+        nuevo->anterior = actual->anterior;
+
+        if (actual->anterior != NULL) {
+            actual->anterior->siguiente = nuevo;
+        } else {
+            cabeza = nuevo;
+        }
+
+        actual->anterior = nuevo;
+    }
 }
 
-void imprimirAdelante(Nodo* inicio) {
-    Nodo* temporal = inicio;
-    while (temporal != NULL) {
-        printf("%d ", temporal->dato);
-        temporal = temporal->siguiente;
+void eliminarPorValor(int valor) {
+    Nodo* actual = cabeza;
+
+    while (actual != NULL) {
+        if (actual->dato == valor) {
+            if (actual->anterior != NULL) {
+                actual->anterior->siguiente = actual->siguiente;
+            } else {
+                cabeza = actual->siguiente;
+            }
+
+            if (actual->siguiente != NULL) {
+                actual->siguiente->anterior = actual->anterior;
+            } else {
+                cola = actual->anterior;
+            }
+
+            free(actual);
+            return;
+        }
+        actual = actual->siguiente;
+    }
+}
+
+void imprimirAdelante() {
+    Nodo* actual = cabeza;
+    while (actual != NULL) {
+        printf("%d ", actual->dato);
+        actual = actual->siguiente;
     }
     printf("\n");
 }
 
-void imprimirAtras(Nodo* inicio) {
-    Nodo* temporal = inicio;
-    while (temporal && temporal->siguiente != NULL) {
-        temporal = temporal->siguiente;
-    }
-
-    while (temporal != NULL) {
-        printf("%d ", temporal->dato);
-        temporal = temporal->anterior;
+void imprimirAtras() {
+    Nodo* actual = cola;
+    while (actual != NULL) {
+        printf("%d ", actual->dato);
+        actual = actual->anterior;
     }
     printf("\n");
+}
+
+void liberarLista() {
+    Nodo* actual = cabeza;
+    while (actual != NULL) {
+        Nodo* siguiente = actual->siguiente;
+        free(actual);
+        actual = siguiente;
+    }
+    cabeza = cola = NULL;
 }
 
 int main() {
-    Nodo* inicio = NULL;
+    insertarFinal(10);
+    insertarFinal(20);
+    insertarInicio(5);
+    insertarEnPosicion(15, 2);
+    insertarEnPosicion(25, 10);
 
-    insertarFinal(&inicio, 10);
-    insertarFinal(&inicio, 20);
-    insertarFinal(&inicio, 30);
-    insertarFinal(&inicio, 40);
+    printf("Recorrido hacia adelante:\n");
+    imprimirAdelante();
 
-    imprimirAdelante(inicio);
-    imprimirAtras(inicio);
+    printf("Recorrido hacia atrás:\n");
+    imprimirAtras();
+
+    eliminarPorValor(15);
+    eliminarPorValor(5);
+
+    printf("Después de eliminar valores:\n");
+    imprimirAdelante();
+
+    liberarLista();
 
     return 0;
 }
